@@ -35,7 +35,7 @@ function Reveal({ children, className = "", delay = 0, threshold = 0.15, from = 
       ? "translate-x-6"
       : from === "down"
       ? "-translate-y-6"
-      : "translate-y-6"; // default up
+      : "translate-y-6";
 
   return (
     <div
@@ -50,7 +50,7 @@ function Reveal({ children, className = "", delay = 0, threshold = 0.15, from = 
   );
 }
 
-const Objectives = () => {
+const AuditoriumPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -58,15 +58,34 @@ const Objectives = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_CMS_URL}/api/objectives`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch objectives data');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_CMS_URL}/api/auditorium`);
+        if (!res.ok) throw new Error('Failed to fetch auditorium content');
+        const result = await res.json();
+
+        // Support both paginated docs shape and direct object
+        let doc = result?.docs && result.docs.length ? result.docs[0] : result;
+
+        if (doc) {
+          // Normalize content: if API returns a single string, split into paragraph blocks
+          if (typeof doc.content === 'string') {
+            const paragraphs = doc.content
+              .split(/\n\s*\n/) // split on double newlines
+              .map((p, i) => ({ id: `p-${i}`, paragraph: p }));
+            doc.content = paragraphs;
+          } else if (!Array.isArray(doc.content)) {
+            doc.content = [];
+          }
+
+          // Normalize gallery images if API uses 'images' or similar
+          if (!doc.galleryImages && doc.images && Array.isArray(doc.images)) {
+            doc.galleryImages = doc.images;
+          }
         }
-        const result = await response.json();
-        setData(result.docs[0]); // Get the first document
+
+        setData(doc);
+        setLoading(false);
       } catch (err) {
         setError(err.message);
-      } finally {
         setLoading(false);
       }
     };
@@ -75,15 +94,16 @@ const Objectives = () => {
   }, []);
 
   return (
-    <div className="relative bg-gradient-to-br from-blue-50 via-white to-blue-50 py-16 lg:py-24 overflow-hidden">
-      {/* Background Pattern - Consistent with other sections */}
+    <div className="relative bg-gradient-to-br from-blue-50 via-white to-cyan-50 py-16 lg:py-24 overflow-hidden">
+      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-[#0D47A1] rounded-full translate-x-1/3 -translate-y-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-yellow-400 rounded-full -translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600 rounded-full translate-x-1/3 -translate-y-1/3"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500 rounded-full -translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-sky-400 rounded-full"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
-        {/* Header Section - Consistent Design */}
+        {/* Header Section */}
         <div className="text-center mb-16">
           {loading ? (
             <>
@@ -124,46 +144,46 @@ const Objectives = () => {
           ) : (
             <>
               <Reveal>
-                <div className="inline-flex items-center px-4 py-2 bg-[#0D47A1]/10 rounded-full border border-[#0D47A1]/20 mb-6">
-                  <div className="w-2 h-2 bg-[#0D47A1] rounded-full mr-2 animate-pulse"></div>
-                  <span className="text-[#0D47A1] font-semibold text-sm tracking-wide">FOUNDATION</span>
+                <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-full border border-blue-300 mb-6">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse"></div>
+                  <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent font-semibold text-sm tracking-wide">CULTURAL CENTER</span>
                 </div>
               </Reveal>
               
               <Reveal delay={100}>
-                <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                   {data?.title ? (
                     <>
                       {data.title.split(' ').slice(0, -1).join(' ')}{' '}
-                      <span className="bg-gradient-to-r from-[#0D47A1] to-[#1565C0] bg-clip-text text-transparent">
+                      <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-sky-600 bg-clip-text text-transparent">
                         {data.title.split(' ').slice(-1)[0]}
                       </span>
                     </>
                   ) : (
                     <>
-                      Aims & <span className="bg-gradient-to-r from-[#0D47A1] to-[#1565C0] bg-clip-text text-transparent">Objectives</span>
+                      School <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Auditorium</span>
                     </>
                   )}
-                </h2>
+                </h1>
               </Reveal>
               
               <Reveal delay={200}>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  {data?.subtitle || 'Discover our vision and mission, clearly outlining our goals and the steps we take to achieve them.'}
+                  {data?.subtitle}
                 </p>
               </Reveal>
             </>
           )}
         </div>
 
-        {/* Content Section */}
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
+        {/* Main Content Section */}
+        <div className="grid lg:grid-cols-2 gap-16 items-start mb-20">
           {/* Image Section */}
           <div className="relative">
             <Reveal delay={300}>
               <div className="relative">
                 {loading ? (
-                  <div className="aspect-[4/5] w-full">
+                  <div className="aspect-[16/10] w-full">
                     <Skeleton 
                       height="100%" 
                       width="100%"
@@ -172,25 +192,43 @@ const Objectives = () => {
                       highlightColor="#e5e7eb"
                     />
                   </div>
-                ) : error ? (
-                  <div className="aspect-[4/5] w-full bg-gray-200 rounded-2xl flex items-center justify-center">
-                    <p className="text-gray-500">Image unavailable</p>
-                  </div>
                 ) : (
-                  data?.image && (
+                  (data?.mainImage?.url || data?.image?.url) && (
                     <div className="relative overflow-hidden rounded-2xl shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
                       <img 
-                        src={data.image.url}
-                        alt={data.image.alt || 'Buddha statue in peaceful garden setting'}
+                        src={data?.mainImage?.url || data?.image?.url}
+                        alt={data?.mainImage?.alt || data?.image?.alt || 'Auditorium'}
                         className="w-full h-auto object-cover"
                       />
-                      {/* Subtle overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-blue-900/30 via-transparent to-transparent"></div>
+
+                      {/* Floating Badge */}
+                      <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm px-4 py-3 rounded-xl shadow-lg">
+                        <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">{data?.['seating capacity'] || data?.seatingCapacity || '500+'}</p>
+                        <p className="text-xs text-gray-600 font-semibold">Seating Capacity</p>
+                      </div>
                     </div>
                   )
                 )}
               </div>
             </Reveal>
+
+            {/* Gallery Images */}
+            {!loading && !error && data?.galleryImages && (
+              <div className="grid grid-cols-3 gap-4 mt-6">
+                {data.galleryImages.map((img, index) => (
+                  <Reveal key={img.id} delay={400 + index * 100}>
+                    <div className="aspect-square overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                      <img 
+                        src={img.url}
+                        alt={img.alt}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Text Content */}
@@ -210,11 +248,6 @@ const Objectives = () => {
                       </div>
                     ))}
                   </div>
-                ) : error ? (
-                  <div className="text-center p-8 bg-red-50 rounded-xl border border-red-200">
-                    <p className="text-red-600 font-medium">Unable to load content</p>
-                    <p className="text-sm text-red-500 mt-2">Please try refreshing the page</p>
-                  </div>
                 ) : (
                   <div className="space-y-6">
                     {data?.content?.map((item, index) => (
@@ -228,58 +261,23 @@ const Objectives = () => {
                           ))}
                         </p>
                       </Reveal>
-                    )) || (
-                      <div className="space-y-6">
-                        <p className="text-lg text-gray-700 leading-relaxed">
-                          The Sree Buddha Foundation is committed to providing quality education rooted in Buddhist values and modern pedagogical practices.
-                        </p>
-                        <p className="text-lg text-gray-700 leading-relaxed">
-                          Our objectives encompass fostering academic excellence, character development, and social responsibility among all members of our educational community.
-                        </p>
-                      </div>
-                    )}
+                    ))}
                   </div>
                 )}
               </div>
             </Reveal>
           </div>
-        </div>
-
-        {/* Call to Action Section */}
-        {!loading && !error && (
-          <Reveal delay={600}>
-            <div className="text-center mt-16 pt-12 border-t border-gray-200">
-              <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                Learn more about our foundation and the institutions we manage
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a 
-                  href="/about-foundation/management" 
-                  className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#0D47A1] to-[#1565C0] text-white font-semibold rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1"
-                >
-                  Our Management
-                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-                <a 
-                  href="/about-foundation/institutions" 
-                  className="group inline-flex items-center justify-center px-8 py-4 bg-white text-[#0D47A1] font-semibold rounded-xl border-2 border-[#0D47A1] hover:bg-[#0D47A1] hover:text-white transition-all duration-300 hover:scale-105"
-                >
-                  Our Institutions
-                </a>
-              </div>
-            </div>
-          </Reveal>
-        )}
+        </div>        
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-20 left-10 w-3 h-3 bg-[#0D47A1] rounded-full animate-pulse"></div>
-      <div className="absolute top-32 right-20 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
-      <div className="absolute bottom-20 left-20 w-4 h-4 bg-[#0D47A1] rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+      <div className="absolute top-20 left-10 w-3 h-3 bg-blue-600 rounded-full animate-pulse"></div>
+      <div className="absolute top-32 right-20 w-2 h-2 bg-cyan-500 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
+      <div className="absolute bottom-20 left-20 w-4 h-4 bg-sky-400 rounded-full animate-pulse" style={{animationDelay: '2s'}}></div>
+      <div className="absolute bottom-40 right-32 w-3 h-3 bg-blue-600 rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
+      <div className="absolute top-1/2 left-32 w-2 h-2 bg-cyan-500 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
     </div>
   );
 };
 
-export default Objectives;
+export default AuditoriumPage;
