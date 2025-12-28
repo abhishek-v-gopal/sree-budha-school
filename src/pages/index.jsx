@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import Head from "next/head";
 import QuickInformation from "@/components/QuickInformation";
 import SchoolEvents from "@/components/SchoolEvents";
 import LeadersMessages from "@/components/LeadersMessages";
@@ -43,19 +44,18 @@ function Reveal({
     from === "left"
       ? "-translate-x-6"
       : from === "right"
-      ? "translate-x-6"
-      : from === "down"
-      ? "-translate-y-6"
-      : "translate-y-6"; // default up
+        ? "translate-x-6"
+        : from === "down"
+          ? "-translate-y-6"
+          : "translate-y-6"; // default up
 
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out will-change-transform ${
-        isVisible
-          ? "opacity-100 translate-x-0 translate-y-0"
-          : `opacity-0 ${hiddenTransform}`
-      } ${className}`}
+      className={`transition-all duration-700 ease-out will-change-transform ${isVisible
+        ? "opacity-100 translate-x-0 translate-y-0"
+        : `opacity-0 ${hiddenTransform}`
+        } ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
@@ -64,6 +64,9 @@ function Reveal({
 }
 
 export default function Home() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sbcs.edu.in";
+  const seoDescription =
+    "Sree Buddha Central School in Karunagappally — nurturing minds since 1993. Admissions, academics, facilities and community-focused education.";
   // State for CMS images
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -88,10 +91,10 @@ export default function Home() {
             imageUrls.length > 0
               ? imageUrls
               : [
-                  "/school-front.png",
-                  "/biology-lab.png",
-                  "/digital-class-room.png",
-                ]
+                "/school-front.png",
+                "/biology-lab.png",
+                "/digital-class-room.png",
+              ]
           );
         } else {
           setImages([
@@ -135,7 +138,7 @@ export default function Home() {
 
   // Shimmer/Skeleton component for hero section
   const HeroSkeleton = () => (
-    <div className="relative h-[55vh] md:h-[60vh] lg:h-[70vh] overflow-hidden rounded-lg animate-pulse">
+    <div className="relative h-[80vh] md:h-[85vh] overflow-hidden rounded-lg animate-pulse">
       {/* Shimmer background */}
       <div className="absolute inset-0">
         <Skeleton
@@ -189,6 +192,105 @@ export default function Home() {
 
   return (
     <div className="animate-fade-in">
+      <Head>
+        <title>Sree Buddha Central School (SBSC) — Karunagappally</title>
+        <meta name="description" content={seoDescription} />
+        <meta name="keywords" content="Sree Buddha Central School, Sree Buddha School, SBSC, SBCS, Sree Budha, sbcs, sbcs school, central school, schools in Karunagapally, Karunagappally" />
+        <meta name="robots" content="index,follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href={siteUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Sree Buddha Central School" />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:image" content={`${siteUrl}/og-image.svg`} />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Sree Buddha Central School" />
+        <meta name="twitter:description" content={seoDescription} />
+        <meta name="twitter:image" content={`${siteUrl}/og-image.svg`} />
+
+        {/* Link to sitemap (ensure NEXT_PUBLIC_SITE_URL is set in production) */}
+        <link rel="sitemap" type="application/xml" href={`${siteUrl}/sitemap.xml`} />
+
+        {/* JSON-LD Organization with alternate names, keywords and local coverage */}
+        <script
+          key="ldjson"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "EducationalOrganization",
+              name: "Sree Buddha Central School",
+              alternateName: ["Sree Buddha School", "SBSC", "SBCS", "Sree Budha", "SBSC School", "SBCS School"],
+              url: siteUrl,
+              logo: `${siteUrl}/favicon.png`,
+              sameAs: [],
+              contactPoint: [{
+                "@type": "ContactPoint",
+                telephone: "",
+                contactType: "Admissions",
+                areaServed: "IN"
+              }],
+              keywords: ["Sree Buddha Central School", "Sree Buddha School", "SBSC", "SBCS", "Sree Budha", "sbcs", "schools in Karunagapally"],
+              areaServed: {
+                "@type": "Place",
+                name: "Karunagappally"
+              },
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Edakkulangara",
+                addressLocality: "Karunagappally",
+                addressRegion: "Kerala",
+                postalCode: "690523",
+                addressCountry: "IN",
+              },
+              // plusCode: 3HF4+R7R (Edakkulangara, Karunagappally)
+              // If you have coordinates, set geo: {"@type":"GeoCoordinates","latitude":"..","longitude":".."}
+            }),
+          }}
+        />
+        {/* FAQ JSON-LD for rich results */}
+        <script
+          key="faq-json"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "How do I apply for admission at Sree Buddha Central School (SBSC)?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Visit our Admissions page for the latest admission form, eligibility criteria and application deadlines. You can also contact the school office at 0479-2562489 for assistance."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  name: "Where is Sree Buddha Central School located?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "SBSC is located in Edakkulangara, Karunagappally, Kerala (PIN 690523). For directions, see the Contact page or use the plus code 3HF4+R7R."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  name: "What classes and curriculum does SBSC offer?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Sree Buddha Central School offers pre-primary to senior secondary education following a balanced curriculum focused on academics, co-curricular activities and character development. Check the Academics section for details."
+                  }
+                }
+              ]
+            }),
+          }}
+        />
+      </Head>
       {/* Hero Section with Background Carousel */}
       <div className="relative animate-slide-up">
         {isLoading ? (
@@ -214,19 +316,23 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/30 pointer-events-none animate-fade-in animation-delay-200" />
 
             {/* Content overlay */}
-            <div className="relative z-10 h-[55vh] md:h-[60vh] lg:h-[70vh] flex items-end justify-start p-4 md:p-6 lg:p-8 animate-slide-up animation-delay-300">
+            <div className="relative z-10 h-[80vh] md:h-[85vh] flex items-end justify-start p-4 md:p-6 lg:p-8 animate-slide-up animation-delay-300">
               {/* Centered hero title (overlay on video/image) */}
               <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
-                <h1 className="text-center">
-                  <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white">
-                    <span className="inline-block bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_4px_12px_rgba(251,191,36,0.4)]">
+                <div className="text-center">
+                  <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+                    <span className="inline-block  bg-clip-text text-white uppercase">
                       Sree Buddha
                     </span>
-                  </div>
-                  <div className="mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-amber-50 tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                  </h1>
+                  <h2 className="mt-2 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-blue-200 tracking-wide drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
                     Central School
-                  </div>
-                </h1>
+                  </h2>
+                  {/* Visible subtitle containing keyword variations (keeps language natural) */}
+                  <p className="mt-3 text-sm sm:text-base text-white max-w-2xl mx-auto">
+                    Sree Buddha Central School in Karunagappally — admissions, academics, facilities and community education.
+                  </p>
+                </div>
               </div>
 
               {/* Dropdown Button */}
@@ -240,7 +346,7 @@ export default function Home() {
         )}
       </div>
 
-      
+
 
       <div className="min-h-screen bg-white">
         {/* Enhanced Welcome Section */}
@@ -410,8 +516,8 @@ export default function Home() {
         </Reveal>
 
         <Reveal>
-        <QuickInformation />
-      </Reveal>
+          <QuickInformation />
+        </Reveal>
 
         {/* About Us Section - Consistent with Welcome Design */}
         <div className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 py-20 overflow-hidden">
